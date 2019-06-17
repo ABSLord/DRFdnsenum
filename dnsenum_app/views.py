@@ -19,7 +19,10 @@ class DNSEnum(APIView):
     permission_classes = ()
     authentication_classes = ()
 
-    def get(self, _request):
-        result = subprocess.Popen(["perl", "/home/anton/work/DRFTest/dnsenum_app/dnsenum.pl", "google.com"], stdout=subprocess.PIPE).stdout.read()
+    def get(self, request):
+        domain = request.query_params["domain"]
+        result = subprocess.Popen(
+            ["perl", os.path.join(os.getcwd(), "dnsenum_app", "dnsenum.pl"),
+             domain], stdout=subprocess.PIPE).stdout.read()
         content = {'message': result}
         return Response(content)
