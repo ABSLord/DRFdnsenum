@@ -6,6 +6,30 @@ import subprocess
 import os
 
 
+def find_index_in_list(lst, pattern):
+    indexes = [i for i, s in enumerate(lst) if pattern in s]
+    if not indexes:
+        return -1
+    else:
+        return indexes[-1]
+
+
+def parse_dnsenum_output(output):
+    result = dict()
+    lst = output.split("\n\n")
+
+    index = find_index_in_list(lst, "Host\'s addresses:")
+    result["Host\'s addresses:"] = lst[index + 1].split("\n") if index != -1 else [""]
+
+    index = find_index_in_list(lst, "Name Servers")
+    result["Name Servers"] = lst[index + 1].split("\n") if index != -1 else [""]
+
+    index = find_index_in_list(lst, "Mail (MX) Servers")
+    result["Mail (MX) Servers"] = lst[index + 1].split("\n") if index != -1 else [""]
+
+    return result
+
+
 class TestApi(APIView):
     permission_classes = (IsAuthenticated,)
     authentication_classes = (TokenAuthentication,)
@@ -25,13 +49,14 @@ class DNSEnum(APIView):
             [
                 "perl",
                 os.path.join(os.getcwd(), "dnsenum_app", "dnsenum.pl"),
-                domain
+                domain,
+                "--nocolor"
             ],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT
         )
         process.wait()
-        result = process.communicate()[0].decode('UTF-8')
+        result = parse_dnsenum_output(process.communicate()[0].decode('UTF-8'))
         if process.returncode:
             # if exit code is not 0
             return Response({
