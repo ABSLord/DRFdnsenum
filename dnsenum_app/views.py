@@ -21,8 +21,25 @@ class DNSEnum(APIView):
 
     def get(self, request):
         domain = request.query_params["domain"]
-        result = subprocess.Popen(
-            ["perl", os.path.join(os.getcwd(), "dnsenum_app", "dnsenum.pl"),
-             domain], stdout=subprocess.PIPE).stdout.read()
-        content = {'message': result}
-        return Response(content)
+        process = subprocess.Popen(
+            [
+                "perl",
+                os.path.join(os.getcwd(), "dnsenum_app", "dnsenum.pl"),
+                domain
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT
+        )
+        process.wait()
+        result = process.communicate()[0].decode('UTF-8')
+        if process.returncode:
+            # if exit code is not 0
+            return Response({
+                'status': 'error',
+                'message': result
+            }, status=400)
+        else:
+            return Response({
+                'status': 'success',
+                'data': result
+            })
