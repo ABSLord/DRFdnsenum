@@ -1,4 +1,12 @@
-venv
-*.sqlite3
-.idea
+# Python bytecode directory
 __pycache__/
+
+# Python virtual environmnet directory
+venv
+
+# SQLite3 database file
+*.sqlite3
+
+# IDE
+.idea
+.vscode
