@@ -5,10 +5,6 @@ WORKDIR /home/
 ENV REPO_BRANCH master
 
 RUN apk add --update \
-    git \
- && git clone --branch ${REPO_BRANCH} https://github.com/ABSLord/DRFdnsenum \
- && cd DRFdnsenum/ \
- && apk add --update \
     perl \
     perl-utils \
     perl-module-install \
@@ -16,9 +12,6 @@ RUN apk add --update \
     perl-module-build \
     musl-dev \
     perl-dev \
-    python3 \
-    py3-pip \
- && pip3 install -r requirements.txt \
  && cpan --notest -f -i \
     Log::Log4perl \
     Digest::HMAC \
@@ -33,6 +26,14 @@ RUN apk add --update \
     WWW::Mechanize \
     XML::Writer \
     String::Random
+
+RUN apk add --update \
+    git \
+    python3 \
+    py3-pip \
+ && git clone --branch ${REPO_BRANCH} https://github.com/ABSLord/DRFdnsenum \
+ && cd DRFdnsenum \
+ && pip3 install -r requirements.txt
 
 WORKDIR /home/DRFdnsenum/
 
