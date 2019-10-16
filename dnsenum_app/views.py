@@ -5,29 +5,8 @@ from rest_framework.authentication import TokenAuthentication
 import subprocess
 import os
 
-
-def find_index_in_list(lst, pattern):
-    indexes = [i for i, s in enumerate(lst) if pattern in s]
-    if not indexes:
-        return -1
-    else:
-        return indexes[-1]
-
-
-def parse_dnsenum_output(output):
-    result = dict()
-    lst = output.split("\n\n")
-
-    index = find_index_in_list(lst, "Host\'s addresses:")
-    result["Host\'s addresses:"] = lst[index + 1].split("\n") if index != -1 else [""]
-
-    index = find_index_in_list(lst, "Name Servers")
-    result["Name Servers"] = lst[index + 1].split("\n") if index != -1 else [""]
-
-    index = find_index_in_list(lst, "Mail (MX) Servers")
-    result["Mail (MX) Servers"] = lst[index + 1].split("\n") if index != -1 else [""]
-
-    return result
+from dnsenum_app.utils import *
+from dnsenum_app.tasks import hello_task
 
 
 class TestApi(APIView):
@@ -36,6 +15,7 @@ class TestApi(APIView):
 
     def get(self, _request):
         content = {'message': 'Hello, World!'}
+        hello_task.delay()
         return Response(content)
 
 
